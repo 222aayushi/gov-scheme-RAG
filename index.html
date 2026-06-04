@@ -205,34 +205,34 @@ margin-top:10px;
 
 <div class="profile-box">
 
-<input type="text" placeholder="Farmer Name">
+<input type="text" placeholder="Farmer Name" id="farmerName">
 
-<select>
+<select id="stateSelect">
 <option>Select State</option>
 <option>Maharashtra</option>
 <option>Gujarat</option>
 <option>Punjab</option>
 </select>
 
-<input type="text" placeholder="District">
+<input type="text" placeholder="District" id="districtInput">
 
-<select>
+<select id="cropSelect">
 <option>Crop Type</option>
 <option>Cotton</option>
 <option>Wheat</option>
 <option>Sugarcane</option>
 </select>
 
-<input type="text" placeholder="Land Size (Acres)">
+<input type="text" placeholder="Land Size (Acres)" id="landSizeInput">
 
-<select>
+<select id="languageSelect">
 <option>Language</option>
 <option>English</option>
 <option>Hindi</option>
 <option>Marathi</option>
 </select>
 
-<button class="save-btn">Save Profile</button>
+<button class="save-btn" id="saveProfileBtn">Save Profile</button>
 
 </div>
 </div>
@@ -264,8 +264,8 @@ Source: Official Government Documents
 </div>
 
 <div class="chat-input">
-<input type="text" placeholder="Ask your question here...">
-<button class="ask-btn">Ask AI</button>
+<input type="text" placeholder="Ask your question here..." id="questionInput">
+<button class="ask-btn" id="askAiBtn">Ask AI</button>
 </div>
 
 </div>
@@ -279,24 +279,79 @@ Source: Official Government Documents
 <div class="scheme-card">
 <h3>PM-KISAN</h3>
 <p>₹6000 annual financial support.</p>
-<button class="view-btn">View Details</button>
+<button class="view-btn" data-scheme="PM-KISAN">View Details</button>
 </div>
 
 <div class="scheme-card">
 <h3>PMFBY</h3>
 <p>Crop Insurance Protection.</p>
-<button class="view-btn">View Details</button>
+<button class="view-btn" data-scheme="PMFBY">View Details</button>
 </div>
 
 <div class="scheme-card">
 <h3>KCC</h3>
 <p>Low Interest Agricultural Loans.</p>
-<button class="view-btn">View Details</button>
+<button class="view-btn" data-scheme="KCC">View Details</button>
 </div>
 
 </div>
 
 </div>
+
+<script>
+const chatContainer = document.querySelector('.chat-container');
+const questionInput = document.getElementById('questionInput');
+const saveProfileBtn = document.getElementById('saveProfileBtn');
+const askAiBtn = document.getElementById('askAiBtn');
+const viewButtons = document.querySelectorAll('.view-btn');
+
+function addMessage(className, text) {
+	const message = document.createElement('div');
+	message.className = className;
+	message.innerHTML = text;
+	chatContainer.appendChild(message);
+	chatContainer.scrollTop = chatContainer.scrollHeight;
+}
+
+saveProfileBtn.addEventListener('click', () => {
+	const profile = {
+		name: document.getElementById('farmerName').value.trim(),
+		state: document.getElementById('stateSelect').value,
+		district: document.getElementById('districtInput').value.trim(),
+		crop: document.getElementById('cropSelect').value,
+		landSize: document.getElementById('landSizeInput').value.trim(),
+		language: document.getElementById('languageSelect').value
+	};
+
+	localStorage.setItem('krishiProfile', JSON.stringify(profile));
+	alert('Profile saved successfully.');
+});
+
+askAiBtn.addEventListener('click', () => {
+	const question = questionInput.value.trim();
+
+	if (!question) {
+		alert('Please enter a question first.');
+		return;
+	}
+
+	addMessage('user-msg', question);
+
+	const answer =
+		'✅ PM-KISAN<br>✅ PMFBY<br>✅ Kisan Credit Card<br><br>' +
+		'This is a demo response. Connect your backend RAG chatbot to generate real answers.';
+
+	addMessage('bot-msg', answer);
+	questionInput.value = '';
+});
+
+viewButtons.forEach((button) => {
+	button.addEventListener('click', () => {
+		const scheme = button.dataset.scheme;
+		alert(`${scheme}: open the scheme details page or connect this button to your backend.`);
+	});
+});
+</script>
 
 </body>
 </html>

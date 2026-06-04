@@ -1,30 +1,30 @@
-from langchain_community.document_loaders import PyPDFLoader
-from chunking import chunk_documents
-import os
+from pathlib import Path
 
-folder_path = r"data doc\Scheme Guidelines pdf"
+from langchain_community.document_loaders import PyPDFLoader
+
+from chunking import chunk_documents
+
+PROJECT_ROOT = Path(__file__).resolve().parent.parent
+DATA_ROOT = PROJECT_ROOT / "data doc"
 
 all_docs = []
 
-for file in os.listdir(folder_path):
-
-    if file.endswith(".pdf"):
-
-        pdf_path = os.path.join(folder_path, file)
-
-        loader = PyPDFLoader(pdf_path)
-
-        docs = loader.load()
-
-        all_docs.extend(docs)
+for pdf_path in DATA_ROOT.rglob("*.pdf"):
+    loader = PyPDFLoader(str(pdf_path))
+    docs = loader.load()
+    all_docs.extend(docs)
 
 print("Total pages loaded:", len(all_docs))
 
-print("\nSample Text:\n")
-print(all_docs[0].page_content[:500])
-chunks = chunk_documents(all_docs)
+if all_docs:
+    print("\nSample Text:\n")
+    print(all_docs[0].page_content[:500])
 
-print("Total Chunks:", len(chunks))
+    chunks = chunk_documents(all_docs)
 
-print("\nFirst Chunk:\n")
-print(chunks[0].page_content)
+    print("Total Chunks:", len(chunks))
+
+    print("\nFirst Chunk:\n")
+    print(chunks[0].page_content)
+else:
+    print("No PDF files found under data doc/.")

@@ -1,5 +1,9 @@
 import faiss
 import numpy as np
+from pathlib import Path
+
+PROJECT_ROOT = Path(__file__).resolve().parent.parent
+INDEX_PATH = PROJECT_ROOT / "scheme_index.faiss"
 
 def create_faiss_index(embeddings):
 
@@ -13,7 +17,7 @@ def create_faiss_index(embeddings):
 
     faiss.write_index(
         index,
-        "scheme_index.faiss"
+        str(INDEX_PATH)
     )
 
     return index

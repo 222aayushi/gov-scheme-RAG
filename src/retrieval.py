@@ -1,7 +1,12 @@
 import faiss
 import pickle
 import numpy as np
+from pathlib import Path
 from sentence_transformers import SentenceTransformer
+
+PROJECT_ROOT = Path(__file__).resolve().parent.parent
+INDEX_PATH = PROJECT_ROOT / "scheme_index.faiss"
+CHUNKS_PATH = PROJECT_ROOT / "chunks.pkl"
 
 # Load model
 model = SentenceTransformer(
@@ -9,10 +14,10 @@ model = SentenceTransformer(
 )
 
 # Load FAISS index
-index = faiss.read_index("scheme_index.faiss")
+index = faiss.read_index(str(INDEX_PATH))
 
 # Load chunks
-with open("chunks.pkl", "rb") as f:
+with open(CHUNKS_PATH, "rb") as f:
     chunks = pickle.load(f)
 
 while True:
