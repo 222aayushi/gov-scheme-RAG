@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Krishi Sahayak AI</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+<style>
+
+*{
+margin:0;
+padding:0;
+box-sizing:border-box;
+font-family:'Poppins',sans-serif;
+}
+
+body{
+background:#f4f9f4;
+}
+
+.navbar{
+background:#2E7D32;
+color:white;
+padding:15px 40px;
+display:flex;
+justify-content:space-between;
+align-items:center;
+}
+
+.logo{
+font-size:24px;
+font-weight:600;
+}
+
+.container{
+display:flex;
+height:calc(100vh - 70px);
+}
+
+/* Sidebar */
+
+.sidebar{
+width:300px;
+background:white;
+padding:25px;
+box-shadow:0 0 15px rgba(0,0,0,0.1);
+}
+
+.sidebar h2{
+color:#2E7D32;
+margin-bottom:20px;
+}
+
+.profile-box{
+display:flex;
+flex-direction:column;
+gap:12px;
+}
+
+.profile-box input,
+.profile-box select{
+padding:10px;
+border:1px solid #ccc;
+border-radius:8px;
+}
+
+.save-btn{
+background:#2E7D32;
+color:white;
+border:none;
+padding:12px;
+border-radius:8px;
+cursor:pointer;
+}
+
+.save-btn:hover{
+background:#256628;
+}
+
+/* Main Chat */
+
+.main{
+flex:1;
+padding:25px;
+display:flex;
+flex-direction:column;
+}
+
+.welcome{
+background:white;
+padding:20px;
+border-radius:12px;
+box-shadow:0 0 10px rgba(0,0,0,0.1);
+margin-bottom:20px;
+}
+
+.welcome h1{
+color:#2E7D32;
+}
+
+.chat-container{
+flex:1;
+background:white;
+border-radius:12px;
+padding:20px;
+overflow-y:auto;
+box-shadow:0 0 10px rgba(0,0,0,0.1);
+}
+
+.user-msg{
+background:#dcedc8;
+padding:12px;
+border-radius:12px;
+width:fit-content;
+margin-bottom:10px;
+margin-left:auto;
+}
+
+.bot-msg{
+background:#eeeeee;
+padding:12px;
+border-radius:12px;
+width:fit-content;
+max-width:70%;
+margin-bottom:10px;
+}
+
+.chat-input{
+display:flex;
+gap:10px;
+margin-top:15px;
+}
+
+.chat-input input{
+flex:1;
+padding:12px;
+border-radius:8px;
+border:1px solid #ccc;
+}
+
+.ask-btn{
+background:#FFC107;
+border:none;
+padding:12px 20px;
+border-radius:8px;
+cursor:pointer;
+font-weight:600;
+}
+
+/* Recommendation Panel */
+
+.right-panel{
+width:320px;
+background:white;
+padding:20px;
+box-shadow:0 0 15px rgba(0,0,0,0.1);
+}
+
+.right-panel h2{
+color:#2E7D32;
+margin-bottom:20px;
+}
+
+.scheme-card{
+background:#f8fff8;
+border-left:5px solid #2E7D32;
+padding:15px;
+margin-bottom:15px;
+border-radius:10px;
+}
+
+.scheme-card h3{
+color:#2E7D32;
+margin-bottom:8px;
+}
+
+.view-btn{
+background:#2E7D32;
+color:white;
+border:none;
+padding:8px 12px;
+border-radius:6px;
+cursor:pointer;
+margin-top:10px;
+}
+
+</style>
+</head>
+<body>
+
+<div class="navbar">
+<div class="logo">🌾 Krishi Sahayak AI</div>
+<div>👤 Farmer Dashboard</div>
+</div>
+
+<div class="container">
+
+<!-- LEFT -->
+
+<div class="sidebar">
+
+<h2>Farmer Profile</h2>
+
+<div class="profile-box">
+
+<input type="text" placeholder="Farmer Name">
+
+<select>
+<option>Select State</option>
+<option>Maharashtra</option>
+<option>Gujarat</option>
+<option>Punjab</option>
+</select>
+
+<input type="text" placeholder="District">
+
+<select>
+<option>Crop Type</option>
+<option>Cotton</option>
+<option>Wheat</option>
+<option>Sugarcane</option>
+</select>
+
+<input type="text" placeholder="Land Size (Acres)">
+
+<select>
+<option>Language</option>
+<option>English</option>
+<option>Hindi</option>
+<option>Marathi</option>
+</select>
+
+<button class="save-btn">Save Profile</button>
+
+</div>
+</div>
+
+<!-- CENTER -->
+
+<div class="main">
+
+<div class="welcome">
+<h1>Welcome to Krishi Sahayak AI 🌱</h1>
+<p>Ask questions about government schemes, subsidies, insurance and farming support.</p>
+</div>
+
+<div class="chat-container">
+
+<div class="user-msg">
+What schemes are available for cotton farmers?
+</div>
+
+<div class="bot-msg">
+✅ PM-KISAN<br>
+✅ PMFBY<br>
+✅ Kisan Credit Card<br><br>
+
+Confidence Score: 94%<br>
+Source: Official Government Documents
+</div>
+
+</div>
+
+<div class="chat-input">
+<input type="text" placeholder="Ask your question here...">
+<button class="ask-btn">Ask AI</button>
+</div>
+
+</div>
+
+<!-- RIGHT -->
+
+<div class="right-panel">
+
+<h2>Recommended Schemes</h2>
+
+<div class="scheme-card">
+<h3>PM-KISAN</h3>
+<p>₹6000 annual financial support.</p>
+<button class="view-btn">View Details</button>
+</div>
+
+<div class="scheme-card">
+<h3>PMFBY</h3>
+<p>Crop Insurance Protection.</p>
+<button class="view-btn">View Details</button>
+</div>
+
+<div class="scheme-card">
+<h3>KCC</h3>
+<p>Low Interest Agricultural Loans.</p>
+<button class="view-btn">View Details</button>
+</div>
+
+</div>
+
+</div>
+
+</body>
+</html>
