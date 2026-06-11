@@ -327,7 +327,7 @@ saveProfileBtn.addEventListener('click', () => {
 	alert('Profile saved successfully.');
 });
 
-askAiBtn.addEventListener('click', () => {
+askAiBtn.addEventListener('click', async () => {
 	const question = questionInput.value.trim();
 
 	if (!question) {
@@ -336,13 +336,41 @@ askAiBtn.addEventListener('click', () => {
 	}
 
 	addMessage('user-msg', question);
-
-	const answer =
-		'✅ PM-KISAN<br>✅ PMFBY<br>✅ Kisan Credit Card<br><br>' +
-		'This is a demo response. Connect your backend RAG chatbot to generate real answers.';
-
-	addMessage('bot-msg', answer);
+	addMessage('bot-msg', 'Thinking...');
 	questionInput.value = '';
+
+	try {
+		const profile = JSON.parse(localStorage.getItem('krishiProfile') || '{}');
+		const response = await fetch('http://127.0.0.1:5000/ask', {
+			method: 'POST',
+			headers: { 'Content-Type': 'application/json' },
+			body: JSON.stringify({ query: question, profile })
+		});
+
+		const data = await response.json();
+		const botMessages = document.querySelectorAll('.bot-msg');
+		const latestBotMessage = botMessages[botMessages.length - 1];
+
+		if (!response.ok) {
+			latestBotMessage.innerHTML = data.error || data.answer || 'Backend error.';
+			return;
+		}
+
+		const confidenceText = data.confidence !== null && data.confidence !== undefined
+			? `<br><br>Confidence Score: ${data.confidence}%`
+			: '';
+		const sourceText = data.sources && data.sources.length
+			? '<br>Source: Official Government Documents'
+			: '';
+		const answerText = (data.answer || 'Information not found in official documents.')
+			.replace(/\n/g, '<br>');
+
+		latestBotMessage.innerHTML = answerText + confidenceText + sourceText;
+	} catch (error) {
+		const botMessages = document.querySelectorAll('.bot-msg');
+		const latestBotMessage = botMessages[botMessages.length - 1];
+		latestBotMessage.innerHTML = 'Unable to contact the backend. Make sure <strong>python src/app.py</strong> is running.';
+	}
 });
 
 viewButtons.forEach((button) => {
