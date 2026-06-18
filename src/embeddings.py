@@ -10,7 +10,8 @@ def create_embeddings(chunks):
 
     embeddings = model.encode(
         texts,
-        show_progress_bar=True
+        show_progress_bar=True,
+        normalize_embeddings=True   # ✅ IMPORTANT FIX
     )
 
     return embeddings

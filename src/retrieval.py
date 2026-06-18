@@ -13,13 +13,19 @@ _INDEX = None
 _CHUNKS = None
 
 
+# -----------------------------
+# Load Model
+# -----------------------------
 def _get_model():
     global _MODEL
     if _MODEL is None:
-        _MODEL = SentenceTransformer("sentence-transformers/all-MiniLM-L6-v2")
+        _MODEL = SentenceTransformer("all-MiniLM-L6-v2")
     return _MODEL
 
 
+# -----------------------------
+# Load FAISS Index
+# -----------------------------
 def _get_index():
     global _INDEX
     if _INDEX is None:
@@ -27,6 +33,9 @@ def _get_index():
     return _INDEX
 
 
+# -----------------------------
+# Load Chunks
+# -----------------------------
 def _get_chunks():
     global _CHUNKS
     if _CHUNKS is None:
@@ -35,19 +44,32 @@ def _get_chunks():
     return _CHUNKS
 
 
-def retrieve(query: str, k: int = 3):
-    """Return the top matching chunks and distances for a query."""
+# -----------------------------
+# MAIN RETRIEVAL FUNCTION
+# -----------------------------
+def retrieve(query: str, k: int = 5):
+
     model = _get_model()
     index = _get_index()
     chunks = _get_chunks()
 
-    query_embedding = model.encode([query])
-    distances, indices = index.search(np.array(query_embedding).astype("float32"), k)
+    # Encode + normalize (cosine similarity ready)
+    query_embedding = model.encode([query], normalize_embeddings=True)
+    query_embedding = np.array(query_embedding, dtype="float32")
 
-    retrieved_chunks = []
+    # FAISS search
+    distances, indices = index.search(query_embedding, k)
+
+    # Get top chunks safely
+    results = []
     for idx in indices[0]:
         if 0 <= idx < len(chunks):
-            retrieved_chunks.append(chunks[idx])
+            results.append(chunks[idx])
 
-    return retrieved_chunks, distances
-        
+    return results, distances
+
+    for idx in indices[0]:
+        if 0 <= idx < len(chunks):
+            results.append(chunks[idx])   # ✅ ONLY Document
+
+    return results

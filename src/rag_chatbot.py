@@ -1,51 +1,4 @@
-import os
 import re
-import time
-from pathlib import Path
-
-from google import genai
-
-_API_KEY_ENV_VARS = ("GENAI_API_KEY", "GOOGLE_API_KEY", "GEMINI_API_KEY")
-_DOTENV_PATHS = (
-    Path(__file__).resolve().parents[1] / ".env",
-    Path(__file__).resolve().parents[1] / ".env.local",
-)
-
-
-def _load_dotenv() -> None:
-    for dotenv_path in _DOTENV_PATHS:
-        if not dotenv_path.exists():
-            continue
-
-        for raw_line in dotenv_path.read_text(encoding="utf-8").splitlines():
-            line = raw_line.strip()
-            if not line or line.startswith("#") or "=" not in line:
-                continue
-
-            key, value = line.split("=", 1)
-            key = key.strip()
-            value = value.strip().strip('"').strip("'")
-
-            if key in _API_KEY_ENV_VARS and value and key not in os.environ:
-                os.environ[key] = value
-
-
-def _load_api_key() -> str:
-    _load_dotenv()
-
-    for env_var in _API_KEY_ENV_VARS:
-        api_key = os.environ.get(env_var)
-        if api_key:
-            return api_key
-
-    raise RuntimeError(
-        "Please set one of these environment variables: GENAI_API_KEY, "
-        "GOOGLE_API_KEY, or GEMINI_API_KEY."
-    )
-
-
-def _get_client() -> genai.Client:
-    return genai.Client(api_key=_load_api_key())
 
 
 def _normalize_whitespace(text: str) -> str:
@@ -216,6 +169,26 @@ def _build_direct_answer(question: str, context: str) -> str | None:
     if not sentences:
         return None
 
+         # ==================================================
+    # CSV Scheme Detection
+    # ==================================================
+
+    scheme_match = re.search(
+        r"scheme_name:\s*(.+?)\n.*?details:\s*(.+)",
+        context,
+        re.IGNORECASE | re.DOTALL
+    )
+
+    if scheme_match:
+
+        scheme_name = scheme_match.group(1).strip()
+        details = scheme_match.group(2).strip()
+
+        return (
+            f"✅ <b>{scheme_name}</b><br><br>"
+            f"{details[:1000]}"
+        )
+    
     def _pick_points(keywords: tuple[str, ...], labels: tuple[str, ...]) -> list[str]:
         picked = []
         for sentence in sentences:
@@ -357,7 +330,7 @@ def _build_direct_answer(question: str, context: str) -> str | None:
                 "✅ Eligible beneficiaries are identified by the State or Union Territory.<br>"
                 "✅ NRIs are excluded from the scheme."
             )
-
+    
     if len(sentences) == 1:
         return _format_points([sentences[0]])
 
@@ -365,25 +338,17 @@ def _build_direct_answer(question: str, context: str) -> str | None:
 
 
 def generate_answer(question: str, context: str) -> str:
-    """Generate an answer from Gemini using only the retrieved context."""
-    prompt = f"""
-You are an agricultural government scheme assistant.
-
-Context:
-{context}
-
-Question:
-{question}
-
-Answer only from the context.
-If information is not available say:
-"Information not found in official documents."
-"""
+    """
+    Generate answer using retrieved context only.
+    No Gemini, no OpenAI, no LLM.
+    """
 
     def _extract_evidence(ctx: str):
         if not ctx:
             return []
+
         candidates = re.split(r"(?<=[.\n])\s+", ctx)
+
         keywords = [
             "eligible",
             "eligibility",
@@ -397,44 +362,38 @@ If information is not available say:
             "insurance",
             "loan",
         ]
+
         found = []
+
         for sentence in candidates:
             lower = sentence.lower()
+
             if any(keyword in lower for keyword in keywords):
                 cleaned = sentence.strip()
+
                 if cleaned and cleaned not in found:
                     found.append(cleaned)
+
         return found
 
+    # First use your existing rule-based NLP logic
     direct_answer = _build_direct_answer(question, context)
+
     if direct_answer:
         return direct_answer
 
+    # Fallback: extract useful evidence sentences
     evidence = _extract_evidence(context)
+
     if evidence:
-        return "<br>".join(f"✅ {_normalize_whitespace(sentence)}" for sentence in evidence[:3])
+        return "<br>".join(
+            f"✅ {_normalize_whitespace(sentence)}"
+            for sentence in evidence[:3]
+        )
 
-    client = _get_client()
-    max_retries = 4
-
-    for attempt in range(1, max_retries + 1):
-        try:
-            response = client.models.generate_content(
-                model="gemini-2.5-flash",
-                contents=prompt,
-            )
-            return getattr(response, "text", str(response))
-        except Exception as exc:
-            message = str(exc)
-            retryable = "503" in message or "UNAVAILABLE" in message
-            if retryable and attempt < max_retries:
-                time.sleep(2 ** (attempt - 1))
-                continue
-            raise
-
+    return "Information not found in the retrieved scheme documents."
 
 def recommend(profile: dict) -> list:
-    """Return a short list of recommended schemes based on a simple rule set."""
     schemes = []
     crop = (profile.get("crop") or "").lower()
 
@@ -448,3 +407,4 @@ def recommend(profile: dict) -> list:
         schemes = ["PM-KISAN", "KCC"]
 
     return schemes
+    
